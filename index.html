@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matematika Teknik (M12) — Angle Conversion &amp; Sinusoidal Simulator</title>
+  <style>
+    :root {
+      --bg-primary: #020a18;
+      --bg-secondary: #061326;
+      --bg-card: #0a1b36;
+      --bg-card-alt: #0d2244;
+      --bg-input: #040d1d;
+      --border-color: #183663;
+      --border-glow: #00e5ff;
+      --text-primary: #f0f6ff;
+      --text-secondary: #9bb4d8;
+      --text-muted: #6482ad;
+      --cyan: #00e5ff;
+      --cyan-dark: #0099b8;
+      --emerald: #1ff27d;
+      --emerald-dark: #069c4b;
+      --amber: #fabc02;
+      --amber-dark: #b38600;
+      --purple: #7c4dff;
+      --purple-dark: #4b23bd;
+      --crimson: #ff3b5c;
+      --crimson-dark: #a8102a;
+      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top right, #082046 0%, var(--bg-primary) 55%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: linear-gradient(180deg, rgba(8, 28, 58, 0.95) 0%, rgba(4, 15, 34, 0.95) 100%);
+      border-bottom: 1px solid var(--border-color);
+      padding: 18px 24px 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .header-inner {
+      max-width: 1360px;
+      margin: 0 auto;
+    }
+
+    .brand-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, var(--cyan), #0077ff);
+      color: #020a18;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--cyan);
+      font-weight: 500;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: rgba(13, 34, 68, 0.6);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      padding: 11px 20px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      border-radius: 10px 10px 0 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(20, 50, 96, 0.85);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 -2px 14px rgba(0, 229, 255, 0.2);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards & Typography */
+    .section-header {
+      margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+      font-size: 1.35rem;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 0.93rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* Tab 1: Tujuan Pembelajaran */
+    .hero-banner {
+      background: linear-gradient(135deg, #0b2447 0%, #071730 100%);
+      border: 1px solid rgba(0, 229, 255, 0.35);
+      border-left: 5px solid var(--cyan);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 22px;
+    }
+
+    .hero-banner h2 {
+      color: var(--cyan);
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .formula-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88rem;
+      color: #e2eeff;
+    }
+
+    .formula-box li {
+      margin-left: 18px;
+      margin-bottom: 5px;
+    }
+
+    .phase-pill {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      margin-top: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .pill-lead {
+      background: rgba(31, 242, 125, 0.12);
+      border: 1px solid rgba(31, 242, 125, 0.4);
+      color: var(--emerald);
+    }
+
+    .pill-in {
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      color: var(--cyan);
+    }
+
+    .pill-lag {
+      background: rgba(255, 59, 92, 0.12);
+      border: 1px solid rgba(255, 59, 92, 0.4);
+      color: var(--crimson);
+    }
+
+    .triangle-map {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: rgba(4, 13, 29, 0.75);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-align: center;
+    }
+
+    .sample-box {
+      margin-top: 22px;
+      background: linear-gradient(135deg, rgba(250, 188, 2, 0.1) 0%, rgba(10, 27, 54, 0.95) 100%);
+      border: 1px solid rgba(250, 188, 2, 0.45);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+    }
+
+    .sample-box h3 {
+      color: var(--amber);
+      margin-bottom: 8px;
+      font-size: 1.08rem;
+    }
+
+    .sample-eq {
+      font-family: 'Consolas', monospace;
+      font-size: 1.05rem;
+      color: #ffffff;
+      background: var(--bg-input);
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid rgba(250, 188, 2, 0.4);
+      margin: 8px 0;
+    }
+
+    /* Mode Cards (Tab 2) */
+    .mode-card-a { border-top: 4px solid var(--cyan); }
+    .mode-card-b { border-top: 4px solid var(--amber); }
+    .mode-card-c { border-top: 4px solid var(--emerald); }
+
+    .mode-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-a { background: rgba(0, 229, 255, 0.18); color: var(--cyan); border: 1px solid var(--cyan); }
+    .badge-b { background: rgba(250, 188, 2, 0.18); color: var(--amber); border: 1px solid var(--amber); }
+    .badge-c { background: rgba(31, 242, 125, 0.18); color: var(--emerald); border: 1px solid var(--emerald); }
+
+    .mode-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+      min-height: 38px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-family: 'Consolas', 'Segoe UI', monospace;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15);
+    }
+
+    .dms-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .chip {
+      background: rgba(250, 188, 2, 0.12);
+      border: 1px solid rgba(250, 188, 2, 0.4);
+      color: var(--amber);
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip:hover {
+      background: var(--amber);
+      color: #020a18;
+    }
+
+    .chip-cyan {
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.4);
+      color: var(--cyan);
+    }
+
+    .chip-cyan:hover {
+      background: var(--cyan);
+      color: #020a18;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 15px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn-block { width: 100%; }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--cyan), #00a8cc);
+      color: #020a18;
+    }
+    .btn-cyan:hover { filter: brightness(1.1); }
+
+    .btn-amber {
+      background: linear-gradient(135deg, var(--amber), #e0a800);
+      color: #020a18;
+    }
+    .btn-amber:hover { filter: brightness(1.1); }
+
+    .btn-emerald {
+      background: linear-gradient(135deg, var(--emerald), #12c462);
+      color: #020a18;
+    }
+    .btn-emerald:hover { filter: brightness(1.1); }
+
+    .btn-purple {
+      background: linear-gradient(135deg, var(--purple), #5a24bd);
+      color: #ffffff;
+    }
+    .btn-purple:hover { filter: brightness(1.12); }
+
+    .btn-crimson {
+      background: linear-gradient(135deg, var(--crimson), #b81430);
+      color: #ffffff;
+    }
+    .btn-crimson:hover { filter: brightness(1.12); }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+    .btn-outline:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Result Output Box */
+    .result-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-top: 14px;
+      margin-bottom: 12px;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(24, 54, 99, 0.55);
+      font-size: 0.88rem;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-label { color: var(--text-secondary); }
+    .result-val {
+      font-family: 'Consolas', monospace;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Praktikum Identity & Target Bar */
+    .praktikum-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1.2fr 1fr;
+      gap: 18px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 1024px) {
+      .praktikum-grid { grid-template-columns: 1fr; }
+    }
+
+    .counter-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 10px 0 12px 0;
+    }
+
+    .counter-box {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      text-align: center;
+    }
+
+    .counter-box span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .counter-box strong {
+      font-size: 1.05rem;
+      color: var(--cyan);
+      font-family: 'Consolas', monospace;
+    }
+
+    .counter-box.done {
+      border-color: var(--emerald);
+      background: rgba(31, 242, 125, 0.08);
+    }
+
+    .counter-box.done strong {
+      color: var(--emerald);
+    }
+
+    .target-list {
+      list-style: none;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .target-list li {
+      padding: 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .target-list li.completed {
+      color: var(--emerald);
+      font-weight: 600;
+    }
+
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.8rem;
+      margin-top: 8px;
+    }
+
+    .ref-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 5px 7px;
+      border-radius: 5px;
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    /* Tables & Log Controls */
+    .log-section {
+      margin-top: 22px;
+    }
+
+    .log-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-input);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+      text-align: left;
+    }
+
+    thead {
+      background: #0d254a;
+      color: var(--cyan);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(24, 54, 99, 0.7);
+      white-space: nowrap;
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 229, 255, 0.05);
+    }
+
+    .del-btn {
+      background: rgba(255, 59, 92, 0.16);
+      color: var(--crimson);
+      border: 1px solid rgba(255, 59, 92, 0.4);
+      padding: 4px 8px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .del-btn:hover {
+      background: var(--crimson);
+      color: #fff;
+    }
+
+    /* Tab 3: Sinusoidal Simulator */
+    .sim-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 1080px) {
+      .sim-layout { grid-template-columns: 1fr; }
+    }
+
+    .eq-display {
+      background: linear-gradient(135deg, #061833, #0b264d);
+      border: 1px solid var(--cyan);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      font-family: 'Consolas', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin: 12px 0;
+      box-shadow: inset 0 0 12px rgba(0, 229, 255, 0.12);
+    }
+
+    .omega-hint {
+      font-size: 0.8rem;
+      color: var(--amber);
+      margin-top: 4px;
+      font-family: 'Consolas', monospace;
+    }
+
+    .canvas-container {
+      position: relative;
+      background: #010712;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    canvas#waveCanvas {
+      width: 100%;
+      height: 330px;
+      display: block;
+      cursor: crosshair;
+    }
+
+    .wave-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 0.83rem;
+    }
+
+    .legend-items {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .legend-line-main {
+      display: inline-block;
+      width: 24px;
+      height: 4px;
+      background: var(--cyan);
+      border-radius: 2px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .legend-line-ref {
+      display: inline-block;
+      width: 24px;
+      height: 0;
+      border-top: 2px dashed #9bb4d8;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .status-banner {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .status-lag {
+      background: rgba(255, 59, 92, 0.14);
+      border: 1px solid var(--crimson);
+      color: #ff6b84;
+    }
+
+    .status-lead {
+      background: rgba(31, 242, 125, 0.14);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+
+    .status-in {
+      background: rgba(0, 229, 255, 0.14);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+    }
+
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .analysis-grid { grid-template-columns: 1fr; }
+    }
+
+    .analysis-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+
+    .analysis-item.full-span {
+      grid-column: 1 / -1;
+    }
+
+    .analysis-title {
+      font-size: 0.82rem;
+      color: var(--cyan);
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .analysis-value {
+      font-family: 'Consolas', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .analysis-sub {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0b264d;
+      color: #ffffff;
+      border: 1px solid var(--cyan);
+      border-left: 5px solid var(--emerald);
+      padding: 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Print Styles */
+    @page {
+      size: A4 portrait;
+      margin: 12mm;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt !important;
+      }
+      header {
+        position: static !important;
+        background: #ffffff !important;
+        border-bottom: 2px solid #000000 !important;
+        padding: 0 0 10px 0 !important;
+        margin-bottom: 12px !important;
+        color: #000000 !important;
+      }
+      .brand-badge {
+        background: #e2e8f0 !important;
+        color: #000000 !important;
+        border: 1px solid #64748b !important;
+        box-shadow: none !important;
+      }
+      main {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      h1, h2, h3, .card-title, .result-val, .analysis-value, .counter-box strong {
+        color: #000000 !important;
+      }
+      .subtitle, .section-header p, label, .result-label, .analysis-sub, .mode-desc, .target-list li, .counter-box span {
+        color: #222222 !important;
+      }
+      input[type="text"],
+      input[type="number"],
+      select {
+        color: #000000 !important;
+        background: #f8fafc !important;
+        border: 1px solid #666666 !important;
+        padding: 5px 8px !important;
+        font-size: 0.85rem !important;
+      }
+      .nav-tabs, .btn, .preset-chips, .del-btn, .col-aksi, #toast, #canvasReadout {
+        display: none !important;
+      }
+      .card, .result-box, .analysis-item, .counter-box, .ref-item {
+        background: #ffffff !important;
+        border: 1px solid #888888 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .card {
+        padding: 12px !important;
+      }
+      .grid-3, .praktikum-grid {
+        gap: 10px !important;
+      }
+      .mode-badge {
+        background: #f1f5f9 !important;
+        color: #000000 !important;
+        border: 1px solid #64748b !important;
+      }
+      /* Strict tab isolation when printing */
+      .tab-panel {
+        display: none !important;
+      }
+      body[data-print-tab="tab-1"] #tab-1,
+      body[data-print-tab="tab-2"] #tab-2,
+      body[data-print-tab="tab-3"] #tab-3 {
+        display: block !important;
+      }
+      body:not([data-print-tab]) .tab-panel.active {
+        display: block !important;
+      }
+      .table-wrapper {
+        overflow: visible !important;
+        border: none !important;
+      }
+      table {
+        width: 100% !important;
+        font-size: 0.76rem !important;
+      }
+      thead {
+        background: #e2e8f0 !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      th, td {
+        border: 1px solid #666666 !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+        padding: 6px 6px !important;
+        white-space: normal !important;
+        word-break: break-word !important;
+      }
+      tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .canvas-container {
+        background: #061326 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <div class="brand-row">
+        <div class="brand-title">
+          <span class="brand-badge">TEKNIK ELEKTRONIKA</span>
+          <div>
+            <h1>Matematika Teknik (M12)</h1>
+            <div class="subtitle">Angle Conversion (Deg/Rad/DMS) &amp; Sinusoidal Waveform Simulator</div>
+          </div>
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-secondary); text-align: right;">
+          <div>Modul Praktikum &amp; Kalkulator Web Interaktif</div>
+          <div style="color: var(--emerald); font-weight: 600;">Offline Ready &bull; Auto-Save Browser</div>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="tab-1" onclick="switchTab('tab-1')">1. Tujuan Pembelajaran</button>
+        <button class="tab-btn" data-tab="tab-2" onclick="switchTab('tab-2')">2. Konversi Sudut</button>
+        <button class="tab-btn" data-tab="tab-3" onclick="switchTab('tab-3')">3. Sinusoidal Form</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- ==================== TAB 1: TUJUAN PEMBELAJARAN ==================== -->
+    <section id="tab-1" class="tab-panel active">
+      <div class="hero-banner">
+        <h2>Capaian Pembelajaran Perkuliahan (M12)</h2>
+        <p style="color: var(--text-primary); font-size: 0.95rem;">
+          Modul Web App interaktif ini dirancang untuk mahasiswa <strong>Teknik Elektronika</strong> agar dapat memahami hubungan konversi matematika sudut serta karakteristik gelombang AC sinusoidal pada rangkaian listrik.
+        </p>
+      </div>
+
+      <div class="grid-3">
+        <!-- Card 1 -->
+        <div class="card">
+          <div class="card-title" style="color: var(--cyan);">
+            <span>1. Konversi Satuan Sudut</span>
+            <span class="mode-badge badge-a">DEG &harr; RAD &harr; DMS</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Memahami konversi satuan sudut secara dua arah (&harr;) antara Derajat Desimal (&deg;), Radian (rad) &mdash; termasuk kelipatan &pi;, dan DMS (Degree, Minute, Second).
+          </p>
+          <div class="formula-box">
+            <div style="color: var(--cyan); font-weight: 700; margin-bottom: 6px;">Contoh Konversi Dasar:</div>
+            <ul>
+              <li>1 rad = 180&deg; / &pi; &approx; 57,2958&deg;</li>
+              <li>1&deg; = &pi; / 180 rad &approx; 0,017453 rad</li>
+              <li>1&deg; = 60' (menit)</li>
+              <li>1' = 60" (detik)</li>
+              <li>1&deg; = 3600" (detik)</li>
+            </ul>
+          </div>
+          <div class="triangle-map">
+            <span>Derajat (&deg;)</span>
+            <span>&harr;</span>
+            <span>Radian (rad/k&pi;)</span>
+            <span>&harr;</span>
+            <span>DMS (&deg; ' ")</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+          <div class="card-title" style="color: var(--amber);">
+            <span>2. Phase Angle (Lead vs Lag)</span>
+            <span class="mode-badge badge-b">FASE &phi;</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Memahami tanda sudut fase (&phi;) terhadap acuan standar gelombang <code>y = A sin(&omega;t)</code>, serta menentukan kondisi <strong>Leading</strong>, <strong>In Phase</strong>, atau <strong>Lagging</strong>.
+          </p>
+          <div style="margin-top: 14px;">
+            <div class="phase-pill pill-lead">
+              <span>y = A sin(&omega;t + &phi;)</span>
+              <span>&rarr; LEADING (+)</span>
+            </div>
+            <div class="phase-pill pill-in">
+              <span>y = A sin(&omega;t)</span>
+              <span>&rarr; IN PHASE (0)</span>
+            </div>
+            <div class="phase-pill pill-lag">
+              <span>y = A sin(&omega;t &minus; &phi;)</span>
+              <span>&rarr; LAGGING (&minus;)</span>
+            </div>
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 12px;">
+            *Gelombang Leading mencapai puncak lebih awal (bergeser ke kiri), sedangkan Lagging mencapai puncak lebih lambat (bergeser ke kanan).
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card">
+          <div class="card-title" style="color: var(--emerald);">
+            <span>3. Parameter Sinusoidal AC</span>
+            <span class="mode-badge badge-c">GELOMBANG AC</span>
+          </div>
+          <p style="font-size: 0.88rem; color: var(--text-secondary);">
+            Menganalisis besaran fisis tegangan/arus sesaat pada rangkaian AC, meliputi amplitudo, periode, frekuensi, dan kecepatan sudut.
+          </p>
+          <div class="formula-box">
+            <ul>
+              <li><strong style="color: var(--cyan);">A</strong> : Amplitudo Puncak (Volt / Ampere)</li>
+              <li><strong style="color: var(--cyan);">T</strong> : Periode = 2&pi; / &omega; (sekon)</li>
+              <li><strong style="color: var(--cyan);">f</strong> : Frekuensi = 1 / T (Hz)</li>
+              <li><strong style="color: var(--cyan);">&omega;</strong> : Kecepatan sudut = 2&pi;f (rad/s)</li>
+            </ul>
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 8px;">
+            <button class="btn btn-cyan btn-block" onclick="switchTab('tab-2')">Mulai Konversi Sudut &rarr;</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acuan Sampel Soal Latihan (P12) -->
+      <div class="sample-box">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;">
+          <div>
+            <h3>Acuan Sampel Soal Latihan (P12)</h3>
+            <p style="font-size: 0.92rem; color: var(--text-primary);">
+              "Tegangan sesaat pada suatu rangkaian AC diberikan oleh persamaan:
+            </p>
+            <div class="sample-eq">v(t) = 340 sin(50&pi;t &minus; 0,541) Volt</div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">
+              Hitunglah: <strong>(a)</strong> Amplitudo, Periode, Frekuensi, Phase Angle (&deg;); <strong>(b)</strong> v saat t = 0; <strong>(c)</strong> v saat t = 10 ms; <strong>(d)</strong> t saat v = 200 V pertama; <strong>(e)</strong> t saat v maksimum, serta sketsa gelombangnya!"
+            </p>
+          </div>
+          <button class="btn btn-amber" onclick="loadSampleP12()">
+            Uji Soal P12 di Simulator &rarr;
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: KONVERSI SUDUT ==================== -->
+    <section id="tab-2" class="tab-panel">
+      <div class="section-header">
+        <h2>Kalkulator Konversi Sudut Interaktif</h2>
+        <p>Konversi satuan sudut antar Derajat (&deg;), Radian (rad) &mdash; termasuk bentuk kelipatan &pi; &mdash; dan DMS (&deg; ' ") secara otomatis.</p>
+      </div>
+
+      <!-- 3 Mode Calculators -->
+      <div class="grid-3">
+        <!-- MODE A -->
+        <div class="card mode-card-a">
+          <div class="card-title">
+            <span style="color: var(--cyan);">MODE A &bull; Degree Decimal (&deg;)</span>
+            <span class="mode-badge badge-a">DEG</span>
+          </div>
+          <p class="mode-desc">Input nilai derajat desimal untuk konversi ke Radian &amp; DMS.</p>
+
+          <div class="form-group">
+            <label for="inputModeA">Input Derajat (&deg;)</label>
+            <input type="text" id="inputModeA" value="50,145" placeholder="Contoh: 50,145 atau 135" oninput="convertModeA()" />
+          </div>
+
+          <button class="btn btn-cyan btn-block" onclick="convertModeA()">&#9654; Konversi</button>
+
+          <div class="result-box">
+            <div class="result-row">
+              <span class="result-label">Derajat :</span>
+              <span class="result-val" id="resA_deg">50,1450&deg;</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Radian (desimal) :</span>
+              <span class="result-val" id="resA_rad">0,8752 rad</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Radian (&pi;) :</span>
+              <span class="result-val" id="resA_pi" style="color: var(--cyan);">0,2786&pi; rad</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">DMS :</span>
+              <span class="result-val" id="resA_dms">50&deg; 8' 42,00"</span>
+            </div>
+          </div>
+
+          <button class="btn btn-emerald btn-block" onclick="saveAngleLog('A')">+ Save Hasil Percobaan (Mode A)</button>
+        </div>
+
+        <!-- MODE B -->
+        <div class="card mode-card-b">
+          <div class="card-title">
+            <span style="color: var(--amber);">MODE B &bull; Radian (rad)</span>
+            <span class="mode-badge badge-b">RAD / &pi;</span>
+          </div>
+          <p class="mode-desc">Input nilai radian dalam bentuk desimal atau notasi &pi; / <code>pi</code> (misal: <code>3pi/4</code>, <code>3&pi;/4</code>, <code>pi/6</code>, <code>2pi</code>, atau <code>3.14</code>).</p>
+
+          <div class="form-group">
+            <label for="inputModeB">Input Radian (rad)</label>
+            <div style="display: flex; gap: 6px;">
+              <input type="text" id="inputModeB" value="3π/4" placeholder="Contoh: 3pi/4, 3π/4, 2pi, 3.14" oninput="convertModeB()" />
+              <button type="button" class="btn btn-outline" style="padding: 0 14px; font-size: 1.05rem; color: var(--amber); border-color: rgba(250,188,2,0.5);" onclick="insertPiModeB()" title="Sisipkan simbol π">&pi;</button>
+            </div>
+          </div>
+
+          <div class="preset-chips">
+            <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Preset Sudut Cepat:</span>
+            <button type="button" class="chip" onclick="setPresetB('π/6')">&pi;/6</button>
+            <button type="button" class="chip" onclick="setPresetB('π/4')">&pi;/4</button>
+            <button type="button" class="chip" onclick="setPresetB('π/3')">&pi;/3</button>
+            <button type="button" class="chip" onclick="setPresetB('π/2')">&pi;/2</button>
+            <button type="button" class="chip" onclick="setPresetB('π')">&pi;</button>
+            <button type="button" class="chip" onclick="setPresetB('3π/4')">3&pi;/4</button>
+            <button type="button" class="chip" onclick="setPresetB('3π/2')">3&pi;/2</button>
+            <button type="button" class="chip" onclick="setPresetB('2π')">2&pi;</button>
+          </div>
+
+          <button class="btn btn-amber btn-block" onclick="convertModeB()">&#9654; Konversi</button>
+
+          <div class="result-box">
+            <div class="result-row">
+              <span class="result-label">Radian (desimal) :</span>
+              <span class="result-val" id="resB_rad">2,3562 rad</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Radian (&pi;) :</span>
+              <span class="result-val" id="resB_pi" style="color: var(--amber);">3&pi;/4 rad</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Derajat :</span>
+              <span class="result-val" id="resB_deg">135,0000&deg;</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">DMS :</span>
+              <span class="result-val" id="resB_dms">135&deg; 0' 0,00"</span>
+            </div>
+          </div>
+
+          <button class="btn btn-emerald btn-block" onclick="saveAngleLog('B')">+ Save Hasil Percobaan (Mode B)</button>
+        </div>
+
+        <!-- MODE C -->
+        <div class="card mode-card-c">
+          <div class="card-title">
+            <span style="color: var(--emerald);">MODE C &bull; Komponen DMS (&deg; ' ")</span>
+            <span class="mode-badge badge-c">DMS</span>
+          </div>
+          <p class="mode-desc">Input derajat (D), menit (M), dan detik (S) untuk konversi ke Derajat Desimal &amp; Radian.</p>
+
+          <div class="dms-grid form-group">
+            <div>
+              <label for="inputModeC_D">D (&deg;)</label>
+              <input type="text" id="inputModeC_D" value="45" oninput="convertModeC()" />
+            </div>
+            <div>
+              <label for="inputModeC_M">M (')</label>
+              <input type="text" id="inputModeC_M" value="55" oninput="convertModeC()" />
+            </div>
+            <div>
+              <label for="inputModeC_S">S (")</label>
+              <input type="text" id="inputModeC_S" value="7,92" oninput="convertModeC()" />
+            </div>
+          </div>
+
+          <button class="btn btn-emerald btn-block" onclick="convertModeC()">&#9654; Konversi</button>
+
+          <div class="result-box">
+            <div class="result-row">
+              <span class="result-label">Derajat (desimal) :</span>
+              <span class="result-val" id="resC_deg">45,9189&deg;</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Radian (desimal) :</span>
+              <span class="result-val" id="resC_rad">0,8014 rad</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Radian (&pi;) :</span>
+              <span class="result-val" id="resC_pi" style="color: var(--emerald);">0,2551&pi; rad</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">DMS :</span>
+              <span class="result-val" id="resC_dms">45&deg; 55' 7,92"</span>
+            </div>
+          </div>
+
+          <button class="btn btn-emerald btn-block" onclick="saveAngleLog('C')">+ Save Hasil Percobaan (Mode C)</button>
+        </div>
+      </div>
+
+      <!-- Identitas Praktikum, Target Praktikum & Referensi -->
+      <div class="praktikum-grid">
+        <!-- Identitas Mahasiswa -->
+        <div class="card">
+          <div class="card-title" style="color: var(--cyan);">Identitas Praktikum</div>
+          <div class="form-group">
+            <label for="mhsNama">Nama Mahasiswa</label>
+            <input type="text" id="mhsNama" placeholder="Masukkan Nama Lengkap" oninput="saveIdentity()" />
+          </div>
+          <div class="form-group">
+            <label for="mhsNim">NIM</label>
+            <input type="text" id="mhsNim" placeholder="Masukkan NIM" oninput="saveIdentity()" />
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="mhsKelas">Kelas</label>
+            <input type="text" id="mhsKelas" placeholder="Contoh: TRIL 2C / TE-2A" oninput="saveIdentity()" />
+          </div>
+        </div>
+
+        <!-- Target Praktikum -->
+        <div class="card">
+          <div class="card-title" style="color: var(--amber);">
+            <span>Target Praktikum</span>
+            <span id="targetStatusBadge" class="mode-badge badge-b">PROGRES</span>
+          </div>
+          <div class="counter-pills">
+            <div class="counter-box" id="boxCountA">
+              <span>Mode A</span>
+              <strong id="countA">0 / 4</strong>
+            </div>
+            <div class="counter-box" id="boxCountB">
+              <span>Mode B</span>
+              <strong id="countB">0 / 4</strong>
+            </div>
+            <div class="counter-box" id="boxCountC">
+              <span>Mode C</span>
+              <strong id="countC">0 / 4</strong>
+            </div>
+            <div class="counter-box" id="boxCountTotal">
+              <span>Total</span>
+              <strong id="countTotal">0 / 12</strong>
+            </div>
+          </div>
+          <ul class="target-list">
+            <li id="chkA">&#9744; Lakukan 4 percobaan pada Mode A (Degree Decimal).</li>
+            <li id="chkB">&#9744; Lakukan 4 percobaan pada Mode B (Radian, termasuk notasi &pi;).</li>
+            <li id="chkC">&#9744; Lakukan 4 percobaan pada Mode C (DMS).</li>
+            <li id="chkTotal">&#9744; Total minimal 12 percobaan tersimpan di log.</li>
+          </ul>
+        </div>
+
+        <!-- Contoh Konversi Radian (π) -->
+        <div class="card">
+          <div class="card-title" style="color: var(--emerald);">Contoh Konversi Radian (&pi;)</div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">
+            Klik <strong>Save Hasil Percobaan</strong> pada mode yang diinginkan untuk menambahkan data ke tabel log.
+          </p>
+          <div class="ref-grid">
+            <div class="ref-item">&pi;/6 = 30&deg;</div>
+            <div class="ref-item">&pi;/2 = 90&deg;</div>
+            <div class="ref-item">3&pi;/2 = 270&deg;</div>
+            <div class="ref-item">&pi;/4 = 45&deg;</div>
+            <div class="ref-item">2&pi;/3 = 120&deg;</div>
+            <div class="ref-item">2&pi; = 360&deg;</div>
+            <div class="ref-item">&pi;/3 = 60&deg;</div>
+            <div class="ref-item">3&pi;/4 = 135&deg;</div>
+            <div class="ref-item">&pi; = 180&deg;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Percobaan Mahasiswa -->
+      <div class="card log-section">
+        <div class="log-toolbar">
+          <div>
+            <div class="card-title" style="margin-bottom: 2px;">Log Percobaan Mahasiswa (Konversi Sudut)</div>
+            <span style="font-size: 0.82rem; color: var(--text-secondary);">Tersimpan otomatis di Local Storage browser. Gunakan Print / Save PDF untuk mencetak laporan praktikum.</span>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-emerald" onclick="saveAngleLog(lastActiveMode)">+ Save Hasil Percobaan</button>
+            <button class="btn btn-cyan" onclick="manualSaveAll()">Save Log</button>
+            <button class="btn btn-purple" onclick="printCurrentTab('tab-2')">Print / Save PDF</button>
+            <button class="btn btn-crimson" onclick="clearAngleLog()">Clear Log</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Waktu</th>
+                <th>Mode</th>
+                <th>Input</th>
+                <th>Derajat (&deg;)</th>
+                <th>Radian (rad)</th>
+                <th>Radian (&pi;)</th>
+                <th>DMS</th>
+                <th class="col-aksi">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="angleLogBody">
+              <tr>
+                <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 18px;">
+                  Belum ada data percobaan. Silakan lakukan konversi pada Mode A, B, atau C lalu klik <strong>Save Hasil Percobaan</strong>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: SINUSOIDAL FORM ==================== -->
+    <section id="tab-3" class="tab-panel">
+      <div class="section-header">
+        <h2>Sinusoidal Waveform Simulator &amp; Analisis Gelombang AC</h2>
+        <p>Visualisasi bentuk gelombang sinusoidal 1 siklus dan perhitungan otomatis parameter dasar rangkaian listrik AC.</p>
+      </div>
+
+      <div class="sim-layout">
+        <!-- Input Parameter Gelombang -->
+        <div class="card">
+          <div class="card-title" style="color: var(--cyan);">Input Parameter Gelombang</div>
+
+          <div class="preset-chips" style="margin-bottom: 14px;">
+            <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Preset Cepat:</span>
+            <button type="button" class="chip chip-cyan" onclick="applyWavePreset(5, '100π', '0.432', 'lag')">Contoh Modul (5V)</button>
+            <button type="button" class="chip" onclick="applyWavePreset(340, '50π', '0.541', 'lag')">Soal Latihan P12 (340V)</button>
+            <button type="button" class="chip chip-cyan" onclick="applyWavePreset(5, '100π', '0', 'in')">In Phase (0)</button>
+            <button type="button" class="chip chip-cyan" onclick="applyWavePreset(5, '100π', 'π/6', 'lead')">Leading (+&pi;/6)</button>
+            <button type="button" class="chip chip-cyan" onclick="applyWavePreset(5, '100π', 'π/6', 'lag')">Lagging (&minus;&pi;/6)</button>
+          </div>
+
+          <div class="grid-2" style="gap: 10px;">
+            <div class="form-group">
+              <label for="waveQuantity">Besaran Sinyal</label>
+              <select id="waveQuantity" onchange="updateWaveSimulator()">
+                <option value="v">Tegangan v(t) [Volt]</option>
+                <option value="i">Arus i(t) [Ampere]</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="waveFunc">Bentuk Gelombang</label>
+              <select id="waveFunc" onchange="updateWaveSimulator()">
+                <option value="sin">Sinus (sin)</option>
+                <option value="cos">Cosinus (cos)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="waveAmp">Amplitudo A (<span id="ampUnitLabel">Volt</span>)</label>
+            <input type="text" id="waveAmp" value="5" oninput="updateWaveSimulator()" />
+          </div>
+
+          <div class="form-group">
+            <label for="waveOmega">Kecepatan Sudut &omega; (rad/s)</label>
+            <input type="text" id="waveOmega" value="100π" placeholder="Contoh: 100π, 50π, 314.16" oninput="updateWaveSimulator()" />
+            <div class="omega-hint" id="omegaHint">100&pi; rad/s &approx; 314,16 rad/s</div>
+          </div>
+
+          <div class="form-group">
+            <label for="wavePhaseVal">Sudut Beda Fase &phi; (Rad atau notasi &pi;)</label>
+            <input type="text" id="wavePhaseVal" value="0,432" placeholder="Contoh: 0,432 atau π/6" oninput="updateWaveSimulator()" />
+          </div>
+
+          <div class="form-group">
+            <label for="wavePhaseSign">Tanda Sign Fase (&phi;)</label>
+            <select id="wavePhaseSign" onchange="updateWaveSimulator()">
+              <option value="lag" selected>Minus (&minus;) / Lagging (Tertinggal)</option>
+              <option value="lead">Plus (+) / Leading (Mendahului)</option>
+              <option value="in">Zero (0) / In Phase (Sefase)</option>
+            </select>
+          </div>
+
+          <div class="eq-display" id="waveEqDisplay">
+            v(t) = 5 sin(100&pi;t &minus; 0,432)
+          </div>
+
+          <button class="btn btn-emerald btn-block" onclick="saveWaveLog()">+ Save Hasil Percobaan Gelombang</button>
+        </div>
+
+        <!-- Sketsa Grafik & Hasil Analisis -->
+        <div>
+          <div class="card" style="margin-bottom: 18px;">
+            <div class="wave-legend">
+              <div>
+                <strong style="color: #fff; font-size: 1rem;">Sketsa Gelombang Sinusoidal (1 Cycle Waveform)</strong>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">Grafik perbandingan terhadap acuan tanpa fase (&phi; = 0).</div>
+              </div>
+              <div class="legend-items">
+                <span><i class="legend-line-ref"></i>Acuan (&phi; = 0)</span>
+                <span><i class="legend-line-main"></i>Gelombang Utama</span>
+              </div>
+            </div>
+
+            <div class="canvas-container">
+              <canvas id="waveCanvas" width="820" height="330"></canvas>
+              <div id="canvasReadout" style="font-family: 'Consolas', monospace; font-size: 0.8rem; color: var(--cyan); margin-top: 6px; text-align: right;">
+                Arahkan kursor ke grafik untuk membaca titik (t, y)
+              </div>
+            </div>
+
+            <div id="phaseStatusBanner" class="status-banner status-lag">
+              <span id="phaseStatusTitle">STATUS: LAGGING (TERTINGGAL)</span>
+              <span id="phaseStatusDetail">Gelombang tertinggal sebesar 24,75&deg; (0,4320 rad).</span>
+            </div>
+
+            <div class="card-title" style="color: var(--amber); margin-top: 8px;">Hasil Analisis Jawaban Soal (a &ndash; e)</div>
+            <div class="analysis-grid">
+              <div class="analysis-item full-span">
+                <div class="analysis-title">(a) Parameter Dasar Gelombang</div>
+                <div class="analysis-value" id="ansA_main">A = 5,00 V | T = 0,0200 s (20,00 ms) | f = 50,00 Hz</div>
+                <div class="analysis-sub" id="ansA_sub">Kecepatan Sudut &omega; = 314,16 rad/s | Phase Angle = &minus;24,75&deg; (Lagging)</div>
+              </div>
+
+              <div class="analysis-item">
+                <div class="analysis-title">(b) Nilai Sesaat saat t = 0</div>
+                <div class="analysis-value" id="ansB_val">&minus;2,09 V</div>
+                <div class="analysis-sub" id="ansB_sub">v(0) = A sin(&phi;)</div>
+              </div>
+
+              <div class="analysis-item">
+                <div class="analysis-title">(c) Nilai Sesaat saat t = 10 ms</div>
+                <div class="analysis-value" id="ansC_val">2,09 V</div>
+                <div class="analysis-sub" id="ansC_sub">v(0,01 s) = A sin(&omega;&middot;0,01 + &phi;)</div>
+              </div>
+
+              <div class="analysis-item">
+                <div class="analysis-title" id="ansD_title">(d) Waktu t saat v = 200 V pertama</div>
+                <div class="analysis-value" id="ansD_val">Tidak tercapai (|target| &gt; A)</div>
+                <div class="analysis-sub" id="ansD_sub">Solusi positif terkecil t &ge; 0</div>
+              </div>
+
+              <div class="analysis-item">
+                <div class="analysis-title">(e) Waktu t saat Nilai Maksimum (+A)</div>
+                <div class="analysis-value" id="ansE_val">6,38 ms</div>
+                <div class="analysis-sub" id="ansE_sub">Puncak positif pertama (&omega;t + &phi; = &pi;/2)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Percobaan Gelombang Sinusoidal -->
+      <div class="card log-section">
+        <div class="log-toolbar">
+          <div>
+            <div class="card-title" style="margin-bottom: 2px;">Log Percobaan Gelombang Sinusoidal</div>
+            <span style="font-size: 0.82rem; color: var(--text-secondary);">Rekaman percobaan gelombang AC lengkap dengan status fase (In Phase, Leading, Lagging).</span>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-emerald" onclick="saveWaveLog()">+ Save Hasil Percobaan</button>
+            <button class="btn btn-cyan" onclick="manualSaveAll()">Save Log</button>
+            <button class="btn btn-purple" onclick="printCurrentTab('tab-3')">Print / Save PDF</button>
+            <button class="btn btn-crimson" onclick="clearWaveLog()">Clear Log</button>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>A (V/A)</th>
+                <th>&omega; (rad/s)</th>
+                <th>&phi; (rad / &deg;)</th>
+                <th>Persamaan v(t) / i(t)</th>
+                <th>Jenis Fase</th>
+                <th class="col-aksi">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="waveLogBody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 18px;">
+                  Belum ada data log gelombang. Klik <strong>Save Hasil Percobaan</strong> untuk menyimpan hasil simulasi.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast">Notifikasi</div>
+
+  <script src="Kalkulator_Matematika_Teknik_M12.js"></script>
+</body>
+</html>
